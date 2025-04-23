@@ -13,7 +13,7 @@ public class CategoryRepository {
   public static List<Category> getAllCategories() {
     List<Category> categories = new ArrayList<>();
     try (Connection conn = getConnection()) {
-      String query = "SELECT * FROM expense_tracker_indigo.category";
+      String  query = "SELECT * FROM expense_tracker_indigo.category";
       PreparedStatement stmt = conn.prepareStatement(query);
       ResultSet rs = stmt.executeQuery();
       while (rs.next()) {

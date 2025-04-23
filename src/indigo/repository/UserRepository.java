@@ -16,6 +16,8 @@ import static indigo.Database.getConnection;
 
 public class UserRepository {
 
+
+
   public static boolean authenticateUser(String username, String password) {
     boolean isUserAvailable = false;
     try (Connection connection = getConnection()) {

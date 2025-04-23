@@ -1,6 +1,7 @@
 package indigo.screen;
 
 import indigo.model.User;
+import indigo.model.UserRoleEnum;
 import indigo.repository.UserRepository;
 
 import javax.swing.*;
@@ -8,6 +9,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+
+import static indigo.repository.UserRoleRepository.roleList;
 
 public class LoginScreen extends JFrame {
 
@@ -58,6 +61,8 @@ public class LoginScreen extends JFrame {
     loginButton.setBounds(230, 220, 120, 40);
     contentPane.add(loginButton);
 
+    this.getRootPane().setDefaultButton(loginButton);
+
     loginButton.addActionListener((ActionEvent e) -> {
       String username = usernameField.getText();
       String password = new String(passwordField.getPassword());
@@ -67,7 +72,8 @@ public class LoginScreen extends JFrame {
         if (!users.isEmpty()) {
           User user = users.get(0);
           String role = user.getRoleId();
-          JOptionPane.showMessageDialog(this, "Login successful! Role: " + role);
+          UserRoleEnum roleEnum = roleList.get(role);
+          JOptionPane.showMessageDialog(this, "Login successful! Role: " + roleEnum);
           dispose();
           if ("admin".equalsIgnoreCase(role)) {
             new AdminDashboard().setVisible(true);

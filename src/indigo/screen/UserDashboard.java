@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,6 +41,16 @@ public class UserDashboard extends JFrame {
     JLabel title = new JLabel("Welcome " + user.getUsername(), SwingConstants.CENTER);
     title.setFont(new Font("Serif", Font.BOLD, 26));
     panel.add(title, BorderLayout.NORTH);
+
+    JButton myButton = new JButton("Logout");
+    myButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
+    myButton.setBounds(230, 220, 120, 40);
+    myButton.addActionListener(e -> {
+      dispose();
+      new LoginScreen().setVisible(true);
+    });
+    panel.add(myButton, BorderLayout.SOUTH);
+
 
     JTabbedPane tabs = new JTabbedPane();
     tabs.add("My Expenses", createExpensePanel());
