@@ -19,7 +19,6 @@ public class DashboardScreen extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
 
-
             }
         });
 
