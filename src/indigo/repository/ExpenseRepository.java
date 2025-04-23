@@ -67,7 +67,7 @@ public class ExpenseRepository {
     return expenses;
   }
 
-  public static void updateExpense(Expense expense) {
+  public static String updateExpense(Expense expense) {
     try (Connection conn = getConnection()) {
       conn.setAutoCommit(false);
 
@@ -93,15 +93,16 @@ public class ExpenseRepository {
         insertStmt.setString(2, catId);
         insertStmt.executeUpdate();
       }
-      System.out.println("Updating expense: " + expense.getExpenseId() + " with new amount: " + expense.getAmount());
-
       conn.commit();
+
+      return "Updating expense: " + expense.getExpenseId() + " with new amount: " + expense.getAmount();
     } catch (SQLException e) {
       e.printStackTrace();
+      return "Updating expense fail!";
     }
   }
 
-  public static void deleteExpense(String expenseId) {
+  public static String deleteExpense(String expenseId) {
     try (Connection conn = getConnection()) {
       String linkSql = "DELETE FROM expensecategory WHERE expense_id = ?";
       PreparedStatement linkStmt = conn.prepareStatement(linkSql);
@@ -112,19 +113,25 @@ public class ExpenseRepository {
       PreparedStatement expStmt = conn.prepareStatement(expSql);
       expStmt.setString(1, expenseId);
       expStmt.executeUpdate();
+
+      return "✅ Expense deleted successfully.";
     } catch (SQLException e) {
       e.printStackTrace();
+      return "Delete expense fail!";
     }
   }
 
-  public static List<String> getCategoriesByExpense(String expenseId) throws SQLException {
+  public static List<String> getCategoriesByExpense(String expenseId) {
     List<String> categories = new ArrayList<>();
-    Connection conn = getConnection();
-    PreparedStatement stmt = conn.prepareStatement("SELECT category_id FROM expensecategory WHERE expense_id = ?");
-    stmt.setString(1, expenseId);
-    ResultSet rs = stmt.executeQuery();
-    while (rs.next()) {
-      categories.add(rs.getString("category_id"));
+    try (Connection conn = getConnection()) {
+      PreparedStatement stmt = conn.prepareStatement("SELECT category_id FROM expensecategory WHERE expense_id = ?");
+      stmt.setString(1, expenseId);
+      ResultSet rs = stmt.executeQuery();
+      while (rs.next()) {
+        categories.add(rs.getString("category_id"));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
     return categories;
   }

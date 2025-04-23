@@ -25,7 +25,11 @@ public class UserDashboard extends JFrame {
   private User currentUser;
   private JTable expenseTable;
   private DefaultTableModel expenseTableModel;
-  private JTextField dateField, amountField, descriptionField;
+
+  private JTextField dateField;
+  private JTextField amountField;
+  private JTextField descriptionField;
+
   private JList<Category> categoryList;
   private String editingExpenseId = null;
 
@@ -68,7 +72,12 @@ public class UserDashboard extends JFrame {
 
     expenseTableModel = new DefaultTableModel(
         new Object[]{"ID", "Date", "Amount", "Categories", "Description", "Update", "Delete"}, 0
-    );
+    ) {
+      @Override
+      public boolean isCellEditable(int row, int column) {
+        return column != 0;
+      }
+    };
 
     expenseTable = new JTable(expenseTableModel);
     panel.add(new JScrollPane(expenseTable), BorderLayout.CENTER);
@@ -83,14 +92,11 @@ public class UserDashboard extends JFrame {
         editingExpenseId = (String) expenseTableModel.getValueAt(row, 0);
 
         // Load categories for this expense
-        List<String> selectedCatIds = new ArrayList<>();
-        try {
-          selectedCatIds = ExpenseRepository.getCategoriesByExpense(editingExpenseId);
-        } catch (Exception ex) {
-          ex.printStackTrace();
+        List<String> selectedCatIds =  ExpenseRepository.getCategoriesByExpense(editingExpenseId);
+        if (selectedCatIds.isEmpty()) {
           JOptionPane.showMessageDialog(this, "❌ Failed to load categories for editing.");
-          return;
         }
+
         ListModel<Category> listModel = categoryList.getModel();
         List<Integer> selectedIndices = new ArrayList<>();
 
@@ -121,14 +127,14 @@ public class UserDashboard extends JFrame {
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
-          ExpenseRepository.deleteExpense(id);
+          String message = ExpenseRepository.deleteExpense(id);
+          JOptionPane.showMessageDialog(UserDashboard.this, message);
           loadExpenseData();
-          JOptionPane.showMessageDialog(UserDashboard.this, "✅ Expense deleted successfully.");
         }
       }
     }));
 
-    JPanel form = new JPanel(new FlowLayout());
+    JPanel form1 = new JPanel(new FlowLayout());
     dateField = new JTextField(8);
     amountField = new JTextField(6);
     descriptionField = new JTextField(15);
@@ -136,22 +142,25 @@ public class UserDashboard extends JFrame {
     categoryList.setVisibleRowCount(5);
     categoryList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     JScrollPane categoryScroll = new JScrollPane(categoryList);
-    categoryScroll.setPreferredSize(new Dimension(150, 80));
+    categoryScroll.setPreferredSize(new Dimension(150, 50));
     JButton addButton = new JButton("Add");
     JButton updateButton = new JButton("Update");
     JButton deleteButton = new JButton("Delete");
 
-    form.add(new JLabel("Date (YYYY-MM-DD):"));
-    form.add(dateField);
-    form.add(new JLabel("Amount:"));
-    form.add(amountField);
-    form.add(new JLabel("Categories:"));
-    form.add(categoryScroll);
-    form.add(new JLabel("Description:"));
-    form.add(descriptionField);
-    form.add(addButton);
-    form.add(updateButton);
-    form.add(deleteButton);
+    form1.add(new JLabel("Date (YYYY-MM-DD):"));
+    form1.add(dateField);
+    form1.add(new JLabel("Amount:"));
+    form1.add(amountField);
+    form1.add(new JLabel("Categories:"));
+    form1.add(categoryScroll);
+    form1.add(new JLabel("Description:"));
+    form1.add(descriptionField);
+
+    JPanel form2 = new JPanel(new FlowLayout());
+
+    form2.add(addButton);
+    form2.add(updateButton);
+    form2.add(deleteButton);
 
     addButton.addActionListener((ActionEvent e) -> {
       List<Category> selectedCategories = categoryList.getSelectedValuesList();
@@ -231,7 +240,12 @@ public class UserDashboard extends JFrame {
       }
     });
 
-    panel.add(form, BorderLayout.SOUTH);
+    JPanel panel2 = new JPanel(new BorderLayout());
+    panel2.add(form1, BorderLayout.NORTH);
+    panel2.add(form2, BorderLayout.SOUTH);
+    panel2.setPreferredSize(new Dimension(300, 100));
+    panel.add(panel2, BorderLayout.PAGE_END);
+
     loadCategoriesToList();
     return panel;
   }
@@ -244,42 +258,6 @@ public class UserDashboard extends JFrame {
     editingExpenseId = null;
   }
 
-//    private JPanel createReportPanel() {
-//        JPanel panel = new JPanel(new BorderLayout());
-//
-//        DefaultTableModel reportTableModel = new DefaultTableModel(
-//                new Object[]{"Report ID", "Start Date", "End Date", "Format"}, 0);
-//        JTable reportTable = new JTable(reportTableModel);
-//
-//        try (Connection conn = indigo.Database.getConnection()) {
-//            String sql = "SELECT report_id, start_date, end_date, format FROM report WHERE user_id = ?";
-//            PreparedStatement stmt = conn.prepareStatement(sql);
-//            stmt.setString(1, currentUser.getUserId());
-//            ResultSet rs = stmt.executeQuery();
-//            while (rs.next()) {
-//                reportTableModel.addRow(new Object[]{
-//                        rs.getString("report_id"),
-//                        rs.getDate("start_date"),
-//                        rs.getDate("end_date"),
-//                        rs.getString("format")
-//                });
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        panel.add(new JScrollPane(reportTable), BorderLayout.CENTER);
-//
-//        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-//        JButton openReportViewerBtn = new JButton("Open Full Report Viewer");
-//        openReportViewerBtn.addActionListener(e -> {
-//            new ReportViewerScreen().setVisible(true);
-//        });
-//        buttonPanel.add(openReportViewerBtn);
-//        panel.add(buttonPanel, BorderLayout.SOUTH);
-//
-//        return panel;
-//    }
 
   private void loadCategoriesToList() {
     List<Category> categories = CategoryRepository.getAllCategories();
