@@ -75,8 +75,8 @@ public class LoginScreen extends JFrame {
           UserRoleEnum roleEnum = roleList.get(role);
           JOptionPane.showMessageDialog(this, "Login successful! Role: " + roleEnum);
           dispose();
-          if ("admin".equalsIgnoreCase(role)) {
-            new AdminDashboard().setVisible(true);
+          if (roleEnum == UserRoleEnum.Admin) {
+            new AdminDashboard(user).setVisible(true);
           } else {
             new UserDashboard(user).setVisible(true);
           }

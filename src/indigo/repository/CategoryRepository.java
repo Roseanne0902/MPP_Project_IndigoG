@@ -30,7 +30,7 @@ public class CategoryRepository {
     return categories;
   }
 
-  public static void addCategory(Category category) {
+  public static String addCategory(Category category) {
     try (Connection conn = getConnection()) {
       String query = "INSERT INTO expense_tracker_indigo.category (category_id, name, description) VALUES (?, ?, ?)";
       PreparedStatement stmt = conn.prepareStatement(query);
@@ -38,12 +38,14 @@ public class CategoryRepository {
       stmt.setString(2, category.getName());
       stmt.setString(3, category.getDescription());
       stmt.executeUpdate();
+      return "Add Category Success!";
     } catch (SQLException e) {
       e.printStackTrace();
+      return "Add Category Fail!";
     }
   }
 
-  public static void updateCategory(Category category) {
+  public static String updateCategory(Category category) {
     try (Connection conn = getConnection()) {
       String query = "UPDATE expense_tracker_indigo.category SET name = ?, description = ? WHERE category_id = ?";
       PreparedStatement stmt = conn.prepareStatement(query);
@@ -51,19 +53,23 @@ public class CategoryRepository {
       stmt.setString(2, category.getDescription());
       stmt.setString(3, category.getCategoryId());
       stmt.executeUpdate();
+      return "Update Category Success!";
     } catch (SQLException e) {
       e.printStackTrace();
+      return "Update Category Fail!";
     }
   }
 
-  public static void deleteCategory(String categoryId) {
+  public static String deleteCategory(String categoryId) {
     try (Connection conn = getConnection()) {
       String query = "DELETE FROM expense_tracker_indigo.category WHERE category_id = ?";
       PreparedStatement stmt = conn.prepareStatement(query);
       stmt.setString(1, categoryId);
       stmt.executeUpdate();
+      return "Delete Category Success!";
     } catch (SQLException e) {
       e.printStackTrace();
+      return "Delete Category Fail!";
     }
   }
 }
