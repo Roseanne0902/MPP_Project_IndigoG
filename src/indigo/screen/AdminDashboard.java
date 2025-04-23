@@ -58,16 +58,21 @@ public class AdminDashboard extends JFrame {
   private JPanel createCategoryPanel() {
     JPanel panel = new JPanel(new BorderLayout());
 
-    categoryTableModel = new DefaultTableModel(new Object[]{"ID", "Name", "Description", "Update", "Delete"}, 0);
+    categoryTableModel = new DefaultTableModel(new Object[]{"ID", "Name", "Description", "Update", "Delete"}, 0) {
+      @Override
+      public boolean isCellEditable(int row, int column) {
+        return column != 0;
+      }
+    };
+
     categoryTable = new JTable(categoryTableModel);
+
     panel.add(new JScrollPane(categoryTable), BorderLayout.CENTER);
 
     idField = new JTextField(15);
     nameField = new JTextField(15);
     descField = new JTextField(15);
     JButton addButton = new JButton("Add");
-//    JButton updateButton = new JButton("Update");
-//    JButton deleteButton = new JButton("Delete");
 
     categoryTable.getColumn("Update").setCellRenderer(new ButtonRenderer("Update"));
     categoryTable.getColumn("Update").setCellEditor(new ButtonEditor(new JCheckBox(), "Update", e -> {
@@ -102,8 +107,6 @@ public class AdminDashboard extends JFrame {
     form1.add(descField);
     JPanel form2 = new JPanel(new FlowLayout());
     form2.add(addButton);
-//    form2.add(updateButton);
-//    form2.add(deleteButton);
 
     addButton.addActionListener((ActionEvent e) -> {
       Category c = new Category(idField.getText(), nameField.getText(), descField.getText());
@@ -112,22 +115,6 @@ public class AdminDashboard extends JFrame {
       loadCategoryData();
     });
 
-//    updateButton.addActionListener((ActionEvent e) -> {
-//      int selected = categoryTable.getSelectedRow();
-//      if (selected != -1) {
-//        Category c = new Category(idField.getText(), nameField.getText(), descField.getText());
-//        CategoryRepository.updateCategory(c);
-//        loadCategoryData();
-//      }
-//    });
-//
-//    deleteButton.addActionListener((ActionEvent e) -> {
-//      int selected = categoryTable.getSelectedRow();
-//      if (selected != -1) {
-//        CategoryRepository.deleteCategory(idField.getText());
-//        loadCategoryData();
-//      }
-//    });
 
     JPanel panel2 = new JPanel();
     panel2.add(form1);

@@ -30,8 +30,34 @@ public class CategoryRepository {
     return categories;
   }
 
+  public static List<Category> getCategoryById(String id) {
+    List<Category> categories = new ArrayList<>();
+    try (Connection conn = getConnection()) {
+      String  query = "SELECT * FROM expense_tracker_indigo.category where category_id = ?";
+      PreparedStatement stmt = conn.prepareStatement(query);
+      stmt.setString(1, id);
+      ResultSet rs = stmt.executeQuery();
+      while (rs.next()) {
+        Category c = new Category(
+            rs.getString("category_id"),
+            rs.getString("name"),
+            rs.getString("description")
+        );
+        categories.add(c);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return categories;
+  }
+
   public static String addCategory(Category category) {
     try (Connection conn = getConnection()) {
+
+      if (!getCategoryById(category.getCategoryId()).isEmpty()) {
+        return "Category Already Available! Can not Add";
+      }
+
       String query = "INSERT INTO expense_tracker_indigo.category (category_id, name, description) VALUES (?, ?, ?)";
       PreparedStatement stmt = conn.prepareStatement(query);
       stmt.setString(1, category.getCategoryId());
@@ -47,6 +73,8 @@ public class CategoryRepository {
 
   public static String updateCategory(Category category) {
     try (Connection conn = getConnection()) {
+
+
       String query = "UPDATE expense_tracker_indigo.category SET name = ?, description = ? WHERE category_id = ?";
       PreparedStatement stmt = conn.prepareStatement(query);
       stmt.setString(1, category.getName());
