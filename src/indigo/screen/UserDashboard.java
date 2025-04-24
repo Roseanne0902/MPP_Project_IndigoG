@@ -181,8 +181,7 @@ public class UserDashboard extends JFrame {
       );
 
       if (editingExpenseId != null) {
-        ExpenseRepository.updateExpense(expense);
-        JOptionPane.showMessageDialog(this, "✅ Expense updated.");
+        JOptionPane.showMessageDialog(this, "Please use the update button!");
         editingExpenseId = null;
       } else {
         ExpenseRepository.addExpense(expense);
@@ -194,29 +193,33 @@ public class UserDashboard extends JFrame {
     });
 
     updateButton.addActionListener((ActionEvent e) -> {
-      int row = expenseTable.getSelectedRow();
-      if (row != -1) {
-        dateField.setText((String) expenseTableModel.getValueAt(row, 1));
-        amountField.setText(expenseTableModel.getValueAt(row, 2).toString());
-        descriptionField.setText((String) expenseTableModel.getValueAt(row, 4));
-        editingExpenseId = (String) expenseTableModel.getValueAt(row, 0);
+      List<Category> selectedCategories = categoryList.getSelectedValuesList();
+      if (selectedCategories.isEmpty()) return;
 
-        try {
-          List<String> selectedCatIds = ExpenseRepository.getCategoriesByExpense(editingExpenseId);
-          ListModel<Category> listModel = categoryList.getModel();
-          List<Integer> selectedIndices = new ArrayList<>();
-          for (int i = 0; i < listModel.getSize(); i++) {
-            if (selectedCatIds.contains(listModel.getElementAt(i).getCategoryId())) {
-              selectedIndices.add(i);
-            }
-          }
-          int[] indices = selectedIndices.stream().mapToInt(Integer::intValue).toArray();
-          categoryList.setSelectedIndices(indices);
-        } catch (Exception ex) {
-          ex.printStackTrace();
-          JOptionPane.showMessageDialog(this, "❌ Failed to load categories for editing.");
-        }
+      List<String> categoryIds = new ArrayList<>();
+      for (Category c : selectedCategories) {
+        categoryIds.add(c.getCategoryId());
       }
+
+      Expense expense = new Expense(
+              editingExpenseId != null ? editingExpenseId : ExpenseRepository.generateNextExpenseId(),
+              currentUser.getUserId(),
+              dateField.getText(),
+              Double.parseDouble(amountField.getText()),
+              descriptionField.getText(),
+              categoryIds
+      );
+
+      if (editingExpenseId != null) {
+        ExpenseRepository.updateExpense(expense);
+        JOptionPane.showMessageDialog(this, "✅ Expense updated.");
+        editingExpenseId = null;
+      } else {
+        JOptionPane.showMessageDialog(this, "✅ Please choose one expense for updating");
+      }
+
+      loadExpenseData();
+      clearForm();
     });
 
     deleteButton.addActionListener((ActionEvent e) -> {
